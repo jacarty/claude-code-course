@@ -8,6 +8,19 @@ vi.mock("../MarkdownRenderer", () => ({
   MarkdownRenderer: ({ content }: { content: string }) => <div>{content}</div>,
 }));
 
+// Mock the ToolInvocationMessage component
+vi.mock("../ToolInvocationMessage", () => ({
+  ToolInvocationMessage: ({ toolName, args, state }: any) => {
+    const getMessage = () => {
+      if (toolName === "str_replace_editor" && args?.command === "create" && args?.path) {
+        return `Creating ${args.path.split("/").pop()}`;
+      }
+      return "Working on file";
+    };
+    return <div>{getMessage()}</div>;
+  },
+}));
+
 afterEach(() => {
   cleanup();
 });
@@ -78,7 +91,7 @@ test("MessageList renders messages with parts", () => {
   render(<MessageList messages={messages} />);
 
   expect(screen.getByText("Creating your component...")).toBeDefined();
-  expect(screen.getByText("str_replace_editor")).toBeDefined();
+  expect(screen.getByText("Working on file")).toBeDefined();
 });
 
 test("MessageList shows content for assistant message with content", () => {
